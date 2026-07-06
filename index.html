@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Fluxo & Meta</title>
+<style>
+  :root {
+    --bg: #f5f5f7; --card: #fff; --border: #e3e3e6; --text: #1d1d1f;
+    --muted: #86868b; --accent: #0071e3; --green: #1f8a3f; --red: #d33b2c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); margin: 0; padding: 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1 { font-size: 24px; font-weight: 600; margin-bottom:24px; letter-spacing: -0.4px; display:flex; align-items:center; justify-content:space-between; }
+  .tabs { display: flex; gap: 2px; margin-bottom:24px; background:#e8e8ed; padding:3px; border-radius:10px; width: fit-content; flex-wrap: wrap; }
+  .tabs button { padding: 7px 16px; background: transparent; border: none; border-radius:8px; cursor: pointer; font-size:13px; font-weight:500; transition:.15s; color: var(--text); }
+  .tabs button.active { background:#fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .tabs button:hover:not(.active) { color: var(--accent); }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .card { background: var(--card); padding: 24px; border-radius:14px; margin-bottom: 18px; border: 1px solid var(--border); }
+  .card h2 { font-size: 16px; font-weight: 600; margin: 0 0 4px; }
+  .card .sub { font-size: 12.5px; color: var(--muted); margin: 0 0 16px; }
+  table { width: 100%; border-collapse: collapse; margin-bottom:14px; font-size:13px; }
+  thead th { font-size:11px; text-transform: uppercase; color: var(--muted); font-weight:600; letter-spacing:.04em; padding:8px 6px; text-align:center; border-bottom:1px solid var(--border); }
+  tbody td { padding:9px 6px; text-align:center; border-bottom:1px solid #f0f0f2; }
+  tbody tr:hover { background:#fafafa; }
+  input[type=number], input[type=text], input[type=date] {
+    width:95px; background:#f5f5f7; border:1px solid var(--border); border-radius:7px; padding:6px 8px; font-size:13px; text-align:center;
+  }
+  select { background:#f5f5f7; border:1px solid var(--border); border-radius:7px; padding:6px 8px; font-size:13px; }
+  input:focus, select:focus { outline:none; border-color: var(--accent); background:#fff; }
+  .btn { background: var(--accent); color:#fff; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; margin:0 8px 14px 0; font-size:13px; font-weight:500; transition:.15s; }
+  .btn:hover { opacity:.85; }
+  .btn.secondary { background:#f5f5f7; color:var(--text); border:1px solid var(--border); }
+  .btn.success { background: var(--green); }
+  .btn.pdf { background:#1d1d1f; }
+  .btn.danger { background: transparent; color: var(--red); border:1px solid #f2cfc9; padding:5px 10px; font-size:12px; }
+  .pos { color: var(--green); font-weight:600; }
+  .neg { color: var(--red); font-weight:600; }
+  label { display:block; margin-top:12px; margin-bottom:5px; font-size:12px; color: var(--muted); font-weight:500; }
+  .grid2 { display:grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap:12px 20px; }
+  .tag { display:inline-block; background:#eaf6ec; color: var(--green); border-radius:6px; padding:2px 8px; font-size:12px; font-weight:500; }
+  .tag.red { background:#fbeae7; color: var(--red); }
+  .tag.saved { background:#e6f0fd; color: var(--accent); }
+  .summary { display:flex; gap:12px; flex-wrap:wrap; margin-top:8px; }
+  .summary .box { background:#fafafa; border:1px solid var(--border); border-radius:10px; padding:12px 16px; min-width:150px; }
+  .summary .box .val { font-size:19px; font-weight:600; margin-top:2px; }
+  .summary .box .lbl { font-size:11px; color: var(--muted); text-transform: uppercase; letter-spacing:.03em; }
+  #resProj { background:#fafafa; border:1px solid var(--border); border-radius:10px; padding:16px; font-size:13.5px; line-height:1.7; }
+  #resProj b { font-weight:600; }
+
+  /* Pizza charts */
+  .pizzaWrap { display:flex; gap:40px; flex-wrap:wrap; margin-top:10px; }
+  .pizzaBox { flex:1; min-width:260px; text-align:center; }
+  .pizzaBox h4 { font-size:13px; font-weight:600; margin:0 0 14px; color:var(--text); }
+  .pizza { width:190px; height:190px; border-radius:50%; margin:0 auto 16px; }
+  .legendaPizza { display:flex; flex-direction:column; gap:6px; text-align:left; max-width:260px; margin:0 auto; }
+  .legendaPizza .item { display:flex; align-items:center; gap:7px; font-size:12.5px; }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0; }
+  .semDados { font-size:12.5px; color:var(--muted); font-style:italic; }
+  .carteiraBox { background:#fafafa; border:1px solid var(--border); border-radius:12px; padding:18px 20px; margin-bottom:20px; }
+  .carteiraBox h3 { font-size:14px; font-weight:600; margin:0 0 12px; }
+
+  .lapisObj { cursor:pointer; font-size:11px; color:var(--muted); margin-left:4px; border-bottom:1px dotted var(--muted); }
+  .lapisObj:hover { color: var(--accent); }
+
+  @media print {
+    .tabs, .btn { display:none !important; }
+    .tab { display:block !important; page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Fluxo & Meta <button class="btn pdf" style="font-size:12px;margin:0" onclick="baixarPDF()">⬇ Baixar PDF</button></h1>
+
+<div class="tabs">
+  <button class="active" onclick="showTab('fluxo', this)">Fluxo Mensal</button>
+  <button onclick="showTab('objetivos', this)">Objetivos</button>
+  <button onclick="showTab('alocacao', this)">Alocação Mensal</button>
+  <button onclick="showTab('dashboard', this)">Dashboard</button>
+  <button onclick="showTab('proj', this)">Projeção</button>
+</div>
+
+<!-- Fluxo Mensal -->
+<div id="fluxo" class="tab active">
+  <div class="card">
+    <h2>Fluxo Mensal</h2>
+    <p class="sub">Registre ganhos, gastos e investimentos de cada mês.</p>
+    <button class="btn" onclick="addMes(true)">Adicionar mês (duplicar anterior)</button>
+    <button class="btn secondary" onclick="addMes(false)">Adicionar mês em branco</button>
+    <table id="tblFluxo">
+      <thead><tr>
+        <th>Mês</th><th>Ganha</th><th>Gasta</th><th>Investe Fixo</th>
+        <th>Sobra</th><th>Planeja Gastar</th><th>Investe Variável</th><th>Total Investido</th><th></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="summary">
+      <div class="box"><div class="lbl">Média investida por mês</div><div class="val" id="investMedio">R$ 0,00</div></div>
+      <div class="box"><div class="lbl">Sobra média por mês</div><div class="val" id="sobraMedia">R$ 0,00</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Objetivos -->
+<div id="objetivos" class="tab">
+  <div class="card">
+    <h2>Objetivos</h2>
+    <p class="sub">Cadastre seus objetivos com uma data alvo. Alocado (real) já soma aportes + rendimentos vinculados. Clique no ✎ para registrar valor já guardado.</p>
+    <button class="btn" onclick="addObj(true)">Duplicar último objetivo</button>
+    <button class="btn secondary" onclick="addObj(false)">Objetivo em branco</button>
+    <table id="tblObj">
+      <thead><tr>
+        <th>Nome</th><th>Meta (R$)</th><th>Data alvo</th><th>Meses restantes</th>
+        <th>Alocado (real)</th><th>Necessário/mês</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Alocação Mensal -->
+<div id="alocacao" class="tab">
+  <div class="card">
+    <h2>Alocação Mensal</h2>
+    <p class="sub">Escolha o mês, informe o aporte e o rendimento acumulado de cada destino. Salve para atualizar a carteira e os objetivos.</p>
+
+    <label>Selecionar mês</label>
+    <select id="selMesAlocacao" onchange="renderAlocacaoMes()" style="min-width:160px"></select>
+
+    <div class="summary" style="margin-top:14px">
+      <div class="box"><div class="lbl">Total investido no mês</div><div class="val" id="totalInvestidoMes">R$ 0,00</div></div>
+      <div class="box"><div class="lbl">Já alocado (aportes)</div><div class="val" id="totalAlocadoMes">R$ 0,00</div></div>
+      <div class="box"><div class="lbl">Restante a alocar</div><div class="val" id="restanteMes">R$ 0,00</div></div>
+      <div class="box"><div class="lbl">Status</div><div class="val" id="statusSalvoMes">—</div></div>
+    </div>
+
+    <div style="margin-top:18px">
+      <button class="btn" onclick="addAlocacaoLinha()">Adicionar destino</button>
+      <button class="btn success" onclick="salvarMes()">Salvar mês</button>
+    </div>
+
+    <table id="tblAlocacaoMes">
+      <thead><tr>
+        <th>Destino</th><th>Tipo</th><th>Aporte (R$)</th><th>Rendimento (R$)</th><th>Vincular a objetivo</th><th></th>
+      </tr></thead>
+      <tbody id="alocacaoMesBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="tab">
+  <div class="card">
+    <h2>Dashboard — Carteira de Investimentos</h2>
+    <p class="sub">Distribuição da sua carteira (aportes + rendimentos salvos) por tipo de ativo e por destino.</p>
+    <div id="dashboardConteudo"></div>
+  </div>
+</div>
+
+<!-- Projeção -->
+<div id="proj" class="tab">
+  <div class="card">
+    <h2>Projeção de Investimento</h2>
+    <div class="grid2">
+      <div><label>Valor inicial (R$)</label><input id="pInicial" type="text" value="1.000,00" inputmode="numeric" oninput="maskMoeda(this)"></div>
+      <div><label>Aporte mensal (R$)</label><input id="pMensal" type="text" value="500,00" inputmode="numeric" oninput="maskMoeda(this)"></div>
+      <div><label>Rendimento (% a.m.)</label><input id="pTaxa" type="number" value="0.9" step="0.01"></div>
+      <div><label>Meses</label><input id="pMeses" type="number" value="24"></div>
+      <div><label>IR sobre ganho (%)</label><input id="pIR" type="number" value="15"></div>
+    </div>
+    <button class="btn" style="margin-top:16px" onclick="calcularProjecao()">Calcular</button>
+    <table id="tblProj">
+      <thead><tr><th>Mês</th><th>Aporte</th><th>Rendimento</th><th>Saldo Bruto</th><th>Ganho Acumulado</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div id="resProj"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Máscara de moeda (pt-BR) ---------- */
+function maskMoeda(el){
+  let digits = el.value.replace(/\D/g,'');
+  if(digits === '') digits = '0';
+  let num = parseInt(digits,10)/100;
+  el.value = num.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function parseMoeda(str){
+  if(!str) return 0;
+  return parseFloat(String(str).replace(/\./g,'').replace(',', '.')) || 0;
+}
+function formatMoeda(num){
+  return (num||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+/* ---------- Navegação de abas ---------- */
+function showTab(id, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='alocacao') { popularSelectMeses(); renderAlocacaoMes(); }
+  if(id==='dashboard') { renderDashboard(); }
+}
+
+/* ---------- Fluxo Mensal ---------- */
+let mesCount = 0;
+
+function addMes(duplicar){
+  mesCount++;
+  const tbody = document.querySelector('#tblFluxo tbody');
+  const linhas = tbody.querySelectorAll('tr');
+  let ganha='0,00', gasta='0,00', fixo='0,00', planeja='0,00';
+  if(duplicar && linhas.length){
+    const last = linhas[linhas.length-1];
+    ganha = last.querySelector('.ganha').value;
+    gasta = last.querySelector('.gasta').value;
+    fixo = last.querySelector('.investeFixo').value;
+    planeja = last.querySelector('.planeja').value;
+  }
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>Mês ${mesCount}</td>
+    <td><input class="ganha" type="text" inputmode="numeric" value="${ganha}" oninput="maskMoeda(this);recalcFluxo()"></td>
+    <td><input class="gasta" type="text" inputmode="numeric" value="${gasta}" oninput="maskMoeda(this);recalcFluxo()"></td>
+    <td><input class="investeFixo" type="text" inputmode="numeric" value="${fixo}" oninput="maskMoeda(this);recalcFluxo()"></td>
+    <td class="sobra">R$ 0,00</td>
+    <td><input class="planeja" type="text" inputmode="numeric" value="${planeja}" oninput="maskMoeda(this);recalcFluxo()"></td>
+    <td class="variavel">R$ 0,00</td>
+    <td class="totalInv">R$ 0,00</td>
+    <td><button class="btn danger" onclick="this.closest('tr').remove();recalcFluxo()">Remover</button></td>
+  `;
+  tbody.appendChild(tr);
+  recalcFluxo();
+}
+
+function recalcFluxo(){
+  let somaTotalInv=0, somaSobra=0, linhas=0;
+  document.querySelectorAll('#tblFluxo tbody tr').forEach(tr => {
+    const ganha = parseMoeda(tr.querySelector('.ganha').value);
+    const gasta = parseMoeda(tr.querySelector('.gasta').value);
+    const fixo = parseMoeda(tr.querySelector('.investeFixo').value);
+    const planeja = parseMoeda(tr.querySelector('.planeja').value);
+    const sobra = ganha - gasta;
+    const variavel = Math.max(sobra - planeja, 0);
+    const totalInv = fixo + variavel;
+    tr.querySelector('.sobra').textContent = 'R$ ' + formatMoeda(sobra);
+    tr.querySelector('.sobra').className = 'sobra ' + (sobra>=0?'pos':'neg');
+    tr.querySelector('.variavel').textContent = 'R$ ' + formatMoeda(variavel);
+    tr.querySelector('.totalInv').textContent = 'R$ ' + formatMoeda(totalInv);
+    somaTotalInv += totalInv;
+    somaSobra += sobra;
+    linhas++;
+  });
+  const mediaInv = linhas ? somaTotalInv/linhas : 0;
+  const mediaSobra = linhas ? somaSobra/linhas : 0;
+  document.getElementById('investMedio').textContent = 'R$ ' + formatMoeda(mediaInv);
+  document.getElementById('sobraMedia').textContent = 'R$ ' + formatMoeda(mediaSobra);
+
+  popularSelectMeses();
+  recalcObjetivosReal();
+}
+
+/* ---------- Objetivos ---------- */
+function addMonthsISO(baseDate, months){
+  const d = new Date(baseDate);
+  d.setMonth(d.getMonth()+months);
+  return d.toISOString().slice(0,10);
+}
+function diffMeses(dataAlvoStr){
+  if(!dataAlvoStr) return 0;
+  const hoje = new Date();
+  const alvo = new Date(dataAlvoStr + 'T00:00:00');
+  let meses = (alvo.getFullYear()-hoje.getFullYear())*12 + (alvo.getMonth()-hoje.getMonth());
+  if(alvo.getDate() < hoje.getDate()) meses--;
+  return meses;
+}
+
+// valor "já guardado" por objetivo (chave = nome do objetivo)
+let jaGuardadoPorObjetivo = {};
+
+function editarJaGuardado(nomeObjetivo){
+  const atual = jaGuardadoPorObjetivo[nomeObjetivo] || 0;
+  const novo = prompt('Valor já guardado para "' + nomeObjetivo + '" (fora do fluxo do app):', formatMoeda(atual));
+  if(novo === null) return;
+  jaGuardadoPorObjetivo[nomeObjetivo] = parseMoeda(novo);
+  recalcObjetivosReal();
+}
+
+function addObj(duplicar){
+  const tbody = document.querySelector('#tblObj tbody');
+  const linhas = tbody.querySelectorAll('tr');
+  let nome='Objetivo', meta='60.000,00', dataAlvo=addMonthsISO(new Date(),24);
+  if(duplicar && linhas.length){
+    const last = linhas[linhas.length-1];
+    nome = last.querySelector('.nome').value;
+    meta = last.querySelector('.meta').value;
+    dataAlvo = last.querySelector('.dataAlvo').value;
+  }
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="nome" type="text" value="${nome}" oninput="recalcObjetivosReal()"> <span class="lapisObj" onclick="editarJaGuardado(this.closest('tr').querySelector('.nome').value)" title="Registrar valor já guardado">✎</span></td>
+    <td><input class="meta" type="text" inputmode="numeric" value="${meta}" oninput="maskMoeda(this);recalcObjetivosReal()"></td>
+    <td><input class="dataAlvo" type="date" value="${dataAlvo}" onchange="recalcObjetivosReal()"></td>
+    <td class="mesesRestantes">-</td>
+    <td class="alocadoReal">R$ 0,00</td>
+    <td class="necessario">R$ 0,00</td>
+    <td class="status">-</td>
+    <td><button class="btn danger" onclick="this.closest('tr').remove();recalcObjetivosReal();renderAlocacaoMes();">Remover</button></td>
+  `;
+  tbody.appendChild(tr);
+  recalcObjetivosReal();
+}
+
+function recalcObjetivosReal(){
+  // soma aportes + rendimentos vinculados a cada objetivo (apenas meses salvos)
+  const totaisPorObjetivo = {};
+  Object.values(alocacoesPorMes).forEach(data => {
+    if(!data.salvo) return;
+    data.linhas.forEach(l => {
+      if(l.objetivo){
+        const total = parseMoeda(l.valor) + parseMoeda(l.rendimento);
+        totaisPorObjetivo[l.objetivo] = (totaisPorObjetivo[l.objetivo]||0) + total;
+      }
+    });
+  });
+
+  document.querySelectorAll('#tblObj tbody tr').forEach(tr => {
+    const nome = tr.querySelector('.nome').value;
+    const meta = parseMoeda(tr.querySelector('.meta').value);
+    const dataAlvo = tr.querySelector('.dataAlvo').value;
+    const mesesRestantes = diffMeses(dataAlvo);
+    const guardado = jaGuardadoPorObjetivo[nome] || 0;
+    const alocado = (totaisPorObjetivo[nome] || 0) + guardado;
+    const faltante = Math.max(meta - alocado, 0);
+    const necessario = mesesRestantes > 0 ? faltante / mesesRestantes : faltante;
+
+    tr.querySelector('.mesesRestantes').textContent = mesesRestantes > 0 ? mesesRestantes + ' meses' : (mesesRestantes === 0 ? 'Este mês' : 'Vencido');
+    tr.querySelector('.alocadoReal').innerHTML = 'R$ ' + formatMoeda(alocado) + (guardado>0 ? ' <span style="color:var(--muted);font-size:10.5px">(inclui R$ '+formatMoeda(guardado)+' já guardado)</span>' : '');
+    tr.querySelector('.necessario').textContent = 'R$ ' + formatMoeda(necessario);
+
+    const status = tr.querySelector('.status');
+    if(alocado >= meta){
+      status.innerHTML = '<span class="tag">Meta atingida</span>';
+    } else if(mesesRestantes <= 0){
+      status.innerHTML = '<span class="tag red">Prazo vencido</span>';
+    } else {
+      status.innerHTML = '<span class="tag red">Faltam R$ ' + formatMoeda(faltante) + '</span>';
+    }
+  });
+}
+
+/* ---------- ALOCAÇÃO MENSAL ---------- */
+let alocacoesPorMes = {};
+
+function getMesData(mes){
+  if(!alocacoesPorMes[mes]) alocacoesPorMes[mes] = { linhas: [], salvo: false };
+  return alocacoesPorMes[mes];
+}
+
+function popularSelectMeses(){
+  const sel = document.getElementById('selMesAlocacao');
+  const atual = sel.value;
+  sel.innerHTML = '';
+  document.querySelectorAll('#tblFluxo tbody tr').forEach(tr=>{
+    const nomeMes = tr.children[0].textContent;
+    const opt = document.createElement('option');
+    opt.value = nomeMes;
+    opt.textContent = nomeMes;
+    sel.appendChild(opt);
+  });
+  if(atual && [...sel.options].some(o=>o.value===atual)) sel.value = atual;
+}
+
+function getTotalInvestidoDoMes(nomeMes){
+  let total = 0;
+  document.querySelectorAll('#tblFluxo tbody tr').forEach(tr=>{
+    if(tr.children[0].textContent === nomeMes){
+      total = parseMoeda(tr.querySelector('.totalInv').textContent.replace('R$','').trim());
+    }
+  });
+  return total;
+}
+
+function getListaObjetivos(){
+  const lista = [];
+  document.querySelectorAll('#tblObj tbody tr').forEach(tr=>{
+    lista.push(tr.querySelector('.nome').value || 'Objetivo');
+  });
+  return lista;
+}
+
+const TIPOS_DESTINO = [
+  'Renda Fixa','Renda Variável','Fundos de Investimento','Investimentos Internacionais',
+  'Previdência Privada','Criptomoedas','Commodities','Startups/Negócios','Imóveis'
+];
+
+const CORES_TIPO = {
+  'Renda Fixa': '#0071e3','Renda Variável': '#d33b2c','Fundos de Investimento': '#a855f7',
+  'Investimentos Internacionais': '#f59e0b','Previdência Privada': '#1f8a3f','Criptomoedas': '#eab308',
+  'Commodities': '#8b5e34','Startups/Negócios': '#ec4899','Imóveis': '#0ea5e9'
+};
+
+const PALETA_DESTINO = ['#0071e3','#1f8a3f','#d33b2c','#a855f7','#f59e0b','#0ea5e9','#ec4899','#eab308','#8b5e34','#6b7280','#10b981','#7c3aed'];
+
+function criarLinhaAlocacao(mes, idx, linha){
+  const objetivos = getListaObjetivos();
+  const tr = document.createElement('tr');
+
+  let optionsObjetivo = `<option value="">Nenhum</option>`;
+  objetivos.forEach(o=>{
+    optionsObjetivo += `<option value="${o}" ${linha.objetivo===o?'selected':''}>${o}</option>`;
+  });
+  let optionsTipo = TIPOS_DESTINO.map(t=>`<option ${linha.tipo===t?'selected':''}>${t}</option>`).join('');
+
+  tr.innerHTML = `
+    <td><input type="text" value="${linha.destino}" placeholder="Ex: Nubank CDB"></td>
+    <td><select>${optionsTipo}</select></td>
+    <td><input type="text" inputmode="numeric" value="${linha.valor}"></td>
+    <td><input type="text" inputmode="numeric" value="${linha.rendimento}"></td>
+    <td><select>${optionsObjetivo}</select></td>
+    <td><button class="btn danger" type="button">Remover</button></td>
+  `;
+
+  const inputDestino = tr.children[0].firstElementChild;
+  const selectTipo = tr.children[1].firstElementChild;
+  const inputValor = tr.children[2].firstElementChild;
+  const inputRendimento = tr.children[3].firstElementChild;
+  const selectObjetivo = tr.children[4].firstElementChild;
+  const btnRemover = tr.children[5].firstElementChild;
+
+  inputDestino.addEventListener('input', ()=>{ linha.destino = inputDestino.value; });
+  inputValor.addEventListener('input', ()=>{
+    maskMoeda(inputValor);
+    linha.valor = inputValor.value;
+    atualizarResumoMes(mes);
+  });
+  inputRendimento.addEventListener('input', ()=>{
+    maskMoeda(inputRendimento);
+    linha.rendimento = inputRendimento.value;
+  });
+  selectTipo.addEventListener('change', ()=>{ linha.tipo = selectTipo.value; });
+  selectObjetivo.addEventListener('change', ()=>{
+    linha.objetivo = selectObjetivo.value;
+    recalcObjetivosReal();
+  });
+  btnRemover.addEventListener('click', ()=>{
+    const data = getMesData(mes);
+    const i = data.linhas.indexOf(linha);
+    if(i>-1) data.linhas.splice(i,1);
+    tr.remove();
+    atualizarResumoMes(mes);
+    recalcObjetivosReal();
+  });
+
+  return tr;
+}
+
+function addAlocacaoLinha(){
+  const mes = document.getElementById('selMesAlocacao').value;
+  if(!mes) return;
+  const data = getMesData(mes);
+  const linha = {destino:'', tipo:TIPOS_DESTINO[0], valor:'0,00', rendimento:'0,00', objetivo:''};
+  data.linhas.push(linha);
+  data.salvo = false;
+  const tr = criarLinhaAlocacao(mes, data.linhas.length-1, linha);
+  document.getElementById('alocacaoMesBody').appendChild(tr);
+  atualizarResumoMes(mes);
+  atualizarStatusSalvo(mes);
+}
+
+function renderAlocacaoMes(){
+  const mes = document.getElementById('selMesAlocacao').value;
+  const body = document.getElementById('alocacaoMesBody');
+  body.innerHTML = '';
+
+  if(!mes){
+    document.getElementById('totalInvestidoMes').textContent = 'R$ 0,00';
+    document.getElementById('totalAlocadoMes').textContent = 'R$ 0,00';
+    document.getElementById('restanteMes').textContent = 'R$ 0,00';
+    document.getElementById('statusSalvoMes').textContent = '—';
+    return;
+  }
+
+  const data = getMesData(mes);
+  data.linhas.forEach((linha, idx)=>{
+    body.appendChild(criarLinhaAlocacao(mes, idx, linha));
+  });
+
+  atualizarResumoMes(mes);
+  atualizarStatusSalvo(mes);
+}
+
+function atualizarResumoMes(mes){
+  const data = getMesData(mes);
+  const totalInvestido = getTotalInvestidoDoMes(mes);
+  let totalAlocado = 0;
+  data.linhas.forEach(l => totalAlocado += parseMoeda(l.valor));
+  const restante = totalInvestido - totalAlocado;
+
+  document.getElementById('totalInvestidoMes').textContent = 'R$ ' + formatMoeda(totalInvestido);
+  document.getElementById('totalAlocadoMes').textContent = 'R$ ' + formatMoeda(totalAlocado);
+  const restEl = document.getElementById('restanteMes');
+  restEl.textContent = 'R$ ' + formatMoeda(restante);
+  restEl.className = 'val ' + (restante < -0.01 ? 'neg' : restante > 0.01 ? '' : 'pos');
+}
+
+function atualizarStatusSalvo(mes){
+  const data = getMesData(mes);
+  const el = document.getElementById('statusSalvoMes');
+  el.innerHTML = data.salvo
+    ? '<span class="tag saved">✓ Salvo</span>'
+    : '<span class="tag red">Não salvo</span>';
+}
+
+function salvarMes(){
+  const mes = document.getElementById('selMesAlocacao').value;
+  if(!mes) return;
+  const data = getMesData(mes);
+  data.salvo = true;
+  atualizarStatusSalvo(mes);
+  recalcObjetivosReal();
+}
+
+/* ---------- DASHBOARD (2 gráficos de pizza) ---------- */
+function gerarConicGradient(entradas, coresMap){
+  // entradas: [[label, valor], ...]
+  const total = entradas.reduce((s,[,v])=>s+v,0);
+  if(total<=0) return {css:'background:#e8e8ed', legenda:[]};
+  let acc = 0;
+  const partes = [];
+  const legenda = [];
+  entradas.forEach(([label,val],i)=>{
+    const cor = coresMap[label] || PALETA_DESTINO[i % PALETA_DESTINO.length];
+    const pctIni = (acc/total*360);
+    acc += val;
+    const pctFim = (acc/total*360);
+    partes.push(`${cor} ${pctIni}deg ${pctFim}deg`);
+    legenda.push({label, val, pct:(val/total*100).toFixed(1), cor});
+  });
+  return {css:`background: conic-gradient(${partes.join(',')})`, legenda};
+}
+
+function renderCarteira(){
+  const somaPorTipo = {};
+  const somaPorDestino = {};
+  let totalCarteira = 0;
+
+  Object.values(alocacoesPorMes).forEach(data => {
+    if(!data.salvo) return;
+    data.linhas.forEach(l => {
+      const v = parseMoeda(l.valor) + parseMoeda(l.rendimento);
+      if(v<=0) return;
+      somaPorTipo[l.tipo] = (somaPorTipo[l.tipo]||0) + v;
+      const destino = l.destino || 'Sem nome';
+      somaPorDestino[destino] = (somaPorDestino[destino]||0) + v;
+      totalCarteira += v;
+    });
+  });
+
+  let html = `<div class="carteiraBox">
+    <h3>📊 Carteira de Investimentos — Total: R$ ${formatMoeda(totalCarteira)} <span style="font-size:11px;color:var(--muted);font-weight:400">(aportes + rendimentos)</span></h3>`;
+
+  if(totalCarteira === 0){
+    html += `<p class="semDados">Nenhuma alocação salva ainda. Salve um mês na aba Alocação Mensal para ver sua carteira aqui.</p></div>`;
+    return html;
+  }
+
+  const tipoData = gerarConicGradient(Object.entries(somaPorTipo).sort((a,b)=>b[1]-a[1]), CORES_TIPO);
+  const destinoData = gerarConicGradient(Object.entries(somaPorDestino).sort((a,b)=>b[1]-a[1]), {});
+
+  html += `<div class="pizzaWrap">
+    <div class="pizzaBox">
+      <h4>Por Tipo de Investimento</h4>
+      <div class="pizza" style="${tipoData.css}"></div>
+      <div class="legendaPizza">
+        ${tipoData.legenda.map(l=>`<div class="item"><span class="dot" style="background:${l.cor}"></span>${l.label}: R$ ${formatMoeda(l.val)} (${l.pct}%)</div>`).join('')}
+      </div>
+    </div>
+    <div class="pizzaBox">
+      <h4>Por Destino</h4>
+      <div class="pizza" style="${destinoData.css}"></div>
+      <div class="legendaPizza">
+        ${destinoData.legenda.map(l=>`<div class="item"><span class="dot" style="background:${l.cor}"></span>${l.label}: R$ ${formatMoeda(l.val)} (${l.pct}%)</div>`).join('')}
+      </div>
+    </div>
+  </div></div>`;
+
+  return html;
+}
+
+function renderDashboard(){
+  document.getElementById('dashboardConteudo').innerHTML = renderCarteira();
+}
+
+/* ---------- Calculadora de projeção ---------- */
+function calcularProjecao() {
+  const inicial = parseMoeda(document.getElementById('pInicial').value);
+  const mensal = parseMoeda(document.getElementById('pMensal').value);
+  const taxa = (parseFloat(document.getElementById('pTaxa').value)||0)/100;
+  const meses = parseInt(document.getElementById('pMeses').value)||0;
+  const ir = (parseFloat(document.getElementById('pIR').value)||0)/100;
+  let saldo = inicial;
+  let totalAportado = inicial;
+  const tbody = document.querySelector('#tblProj tbody');
+  tbody.innerHTML = '';
+  for(let m=1; m<=meses; m++){
+    const rendimento = saldo*taxa;
+    saldo += rendimento + mensal;
+    totalAportado += mensal;
+    const ganho = saldo - totalAportado;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${m}</td><td>R$ ${formatMoeda(mensal)}</td><td>R$ ${formatMoeda(rendimento)}</td><td>R$ ${formatMoeda(saldo)}</td><td>R$ ${formatMoeda(ganho)}</td>`;
+    tbody.appendChild(tr);
+  }
+  const ganhoFinal = saldo - totalAportado;
+  const imposto = ganhoFinal*ir;
+  const saldoLiquido = saldo - imposto;
+  document.getElementById('resProj').innerHTML = `
+    <b>Saldo bruto final:</b> R$ ${formatMoeda(saldo)}<br>
+    <b>Total aportado:</b> R$ ${formatMoeda(totalAportado)}<br>
+    <b>Ganho bruto:</b> R$ ${formatMoeda(ganhoFinal)}<br>
+    <b>Imposto (${(ir*100).toFixed(0)}%):</b> R$ ${formatMoeda(imposto)}<br>
+    <b>Saldo líquido:</b> <span class="pos">R$ ${formatMoeda(saldoLiquido)}</span>
+  `;
+}
+
+/* ---------- Exportar PDF ---------- */
+function baixarPDF(){
+  renderDashboard();
+  // Garante que todas as abas fiquem visíveis para impressão
+  document.querySelectorAll('.tab').forEach(t=>t.style.display='block');
+  window.print();
+  setTimeout(()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.style.display='');
+    document.querySelectorAll('.tab').forEach(t=>{ if(!t.classList.contains('active')) t.style.display='none'; });
+  }, 500);
+}
+
+/* ---------- Inicialização ---------- */
+addMes(false);
+addObj(false);
+popularSelectMeses();
+</script>
+</body>
+</html>
