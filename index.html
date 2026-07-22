@@ -95,7 +95,7 @@
   @media (max-width:880px){ .client-body{ flex-direction:column; } .client-nav{ width:100%; flex-direction:row; flex-wrap:wrap; position:static; } }
   .sub-tab-content.active{ display:block; }
 
-  .layout{ display:grid; grid-template-columns: 340px 1fr; gap:20px; align-items:start; }
+  .layout{ display:grid; grid-template-columns: minmax(0,340px) minmax(0,1fr); gap:20px; align-items:start; }
   @media (max-width:880px){ .layout{ grid-template-columns:1fr; } }
 
   .panel{ background: var(--panel); border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 8px 24px rgba(0,0,0,.04); margin-bottom:18px; }
@@ -148,12 +148,11 @@
   .pill-btn.secondary{ background:var(--bg-alt); color:var(--cream); }
   .pill-btn.blue{ background:var(--blue); }
 
-  .results{ display:flex; flex-direction:column; gap:18px; }
-  .cards{ display:grid; grid-template-columns:repeat(4,1fr); gap:13px; }
-  @media (max-width:780px){ .cards{ grid-template-columns:repeat(2,1fr); } }
-  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:15px 16px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+  .results{ display:flex; flex-direction:column; gap:18px; min-width:0; }
+  .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:13px; }
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:15px 16px 14px; box-shadow: 0 1px 2px rgba(0,0,0,.03); min-width:0; }
   .card .lbl{ font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-weight:600; }
-  .card .val{ font-family: var(--font-mono); font-size:20px; font-weight:600; margin-top:6px; letter-spacing:-.01em; }
+  .card .val{ font-family: var(--font-mono); font-size:20px; font-weight:600; margin-top:6px; letter-spacing:-.01em; overflow-wrap:break-word; }
   .card.gold .val{ color:var(--gold); } .card.green .val{ color:var(--green); } .card.blue .val{ color:var(--blue); }
   .card .sub{ font-size:11px; color:var(--muted-2); margin-top:4px; }
 
@@ -162,7 +161,7 @@
   .magic .txt{ font-size:12.5px; line-height:1.5; color: var(--muted); }
   .magic .txt b{ color:var(--gold); }
 
-  .chart-panel{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px; box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 8px 24px rgba(0,0,0,.04); margin-bottom:16px; }
+  .chart-panel{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:20px; box-shadow: 0 1px 2px rgba(0,0,0,.03), 0 8px 24px rgba(0,0,0,.04); margin-bottom:16px; min-width:0; }
   .chart-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px; }
   .chart-head h2{ font-family: var(--font-display); font-size:14.5px; font-weight:700; margin:0; letter-spacing:-.01em; }
   .legend{ display:flex; gap:14px; font-size:10.5px; color:var(--muted); }
@@ -337,12 +336,12 @@
   .hist-title{ font-size:23px; font-weight:800; margin:0 0 6px; letter-spacing:-.01em; }
   .hist-subtitle{ font-size:13.5px; color:var(--muted); margin:0; }
   .hist-stats-row{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:18px; }
-  .hist-stat-card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .hist-stat-card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px; display:flex; gap:12px; align-items:flex-start; box-shadow:0 1px 2px rgba(0,0,0,.03); min-width:0; }
   .hist-stat-icon{ width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .hist-stat-icon svg{ width:20px; height:20px; }
   .hist-stat-body{ min-width:0; }
   .hist-stat-label{ font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); font-weight:700; }
-  .hist-stat-value{ font-size:19px; font-weight:800; margin-top:3px; }
+  .hist-stat-value{ font-size:19px; font-weight:800; margin-top:3px; overflow-wrap:break-word; }
   .hist-stat-sub{ font-size:11px; color:var(--muted-2); margin-top:2px; }
   .hist-mini-select{ font-size:10.5px; color:var(--muted); background:none; border:none; padding:3px 0 0; margin:0; cursor:pointer; font-family:var(--font); }
   .hist-layout{ display:grid; grid-template-columns:1fr 300px; gap:18px; align-items:start; }
@@ -764,11 +763,39 @@
             <div class="foot-note"><b>Número mágico</b>: mês em que os dividendos, sozinhos, já compram 1 cota nova, mesmo sem aporte.</div>
           </div>
           <div class="results">
-            <div class="cards">
-              <div class="card gold"><div class="lbl">Patrimônio final</div><div class="val" id="fii_cardPatrimonio">—</div><div class="sub" id="fii_cardCotasFinal"></div></div>
-              <div class="card"><div class="lbl">Total aportado</div><div class="val" id="fii_cardAportado">—</div><div class="sub">soma dos aportes</div></div>
-              <div class="card green"><div class="lbl">Dividendos acumulados</div><div class="val" id="fii_cardDividendos">—</div><div class="sub" id="fii_cardDivUltimoMes"></div></div>
-              <div class="card"><div class="lbl">Rendimento total</div><div class="val" id="fii_cardRendimento">—</div><div class="sub">sobre o total investido</div></div>
+            <div class="hist-stats-row">
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--gold-dim);color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Patrimônio final</div>
+                  <div class="hist-stat-value" id="fii_cardPatrimonio">—</div>
+                  <div class="hist-stat-sub" id="fii_cardCotasFinal"></div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--bg-alt);color:var(--muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Total aportado</div>
+                  <div class="hist-stat-value" id="fii_cardAportado">—</div>
+                  <div class="hist-stat-sub">soma dos aportes</div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.3"/><circle cx="17" cy="17" r="2.3"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Dividendos acumulados</div>
+                  <div class="hist-stat-value" id="fii_cardDividendos">—</div>
+                  <div class="hist-stat-sub" id="fii_cardDivUltimoMes"></div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Rendimento total</div>
+                  <div class="hist-stat-value" id="fii_cardRendimento">—</div>
+                  <div class="hist-stat-sub">sobre o total investido</div>
+                </div>
+              </div>
             </div>
             <div class="magic" id="fii_magicBox" style="display:none"><div class="txt" id="fii_magicText"></div></div>
             <div class="chart-panel">
@@ -813,11 +840,39 @@
             <div class="foot-note">Juros compostos: o rendimento do mês incide sobre o saldo do mês anterior, e o aporte é somado em seguida.</div>
           </div>
           <div class="results">
-            <div class="cards">
-              <div class="card blue"><div class="lbl">Saldo final</div><div class="val" id="rf_cardSaldo">—</div><div class="sub" id="rf_cardTaxaMensal"></div></div>
-              <div class="card"><div class="lbl">Total aportado</div><div class="val" id="rf_cardAportado">—</div><div class="sub">soma dos aportes</div></div>
-              <div class="card green"><div class="lbl">Juros acumulados</div><div class="val" id="rf_cardJuros">—</div><div class="sub" id="rf_cardJurosUltimoMes"></div></div>
-              <div class="card"><div class="lbl">Rendimento total</div><div class="val" id="rf_cardRendimento">—</div><div class="sub">sobre o total investido</div></div>
+            <div class="hist-stats-row">
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--blue-dim);color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Saldo final</div>
+                  <div class="hist-stat-value" id="rf_cardSaldo">—</div>
+                  <div class="hist-stat-sub" id="rf_cardTaxaMensal"></div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--bg-alt);color:var(--muted)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18"/><circle cx="16" cy="14.5" r="1"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Total aportado</div>
+                  <div class="hist-stat-value" id="rf_cardAportado">—</div>
+                  <div class="hist-stat-sub">soma dos aportes</div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--green-dim);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5L5 19"/><circle cx="7" cy="7" r="2.3"/><circle cx="17" cy="17" r="2.3"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Juros acumulados</div>
+                  <div class="hist-stat-value" id="rf_cardJuros">—</div>
+                  <div class="hist-stat-sub" id="rf_cardJurosUltimoMes"></div>
+                </div>
+              </div>
+              <div class="hist-stat-card">
+                <div class="hist-stat-icon" style="background:var(--gold-dim);color:var(--gold)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M7 7h10v10"/></svg></div>
+                <div class="hist-stat-body">
+                  <div class="hist-stat-label">Rendimento total</div>
+                  <div class="hist-stat-value" id="rf_cardRendimento">—</div>
+                  <div class="hist-stat-sub">sobre o total investido</div>
+                </div>
+              </div>
             </div>
             <div class="chart-panel">
               <div class="chart-head"><h2>Evolução mês a mês</h2>
@@ -1360,6 +1415,7 @@ function salvarCrmModal(){
   }
   closeCrmModal();
   renderCRM(); renderDashboard(); renderClientesGrid();
+  if(clienteAberto !== null) renderHistorico();
 }
 function toggleClienteAtivo(id){
   const c = clientes.find(x=>x.id===id); if(!c) return;
@@ -1660,7 +1716,7 @@ function renderEventosDoDia(){
 }
 function removerEvento(id){
   eventos = eventos.filter(e=>e.id!==id);
-  renderCalendario(); renderDashboard();
+  renderCalendario(); renderDashboard(); renderHistorico();
 }
 function preencherSelectPessoas(sel){
   const opcoes = [];
@@ -1713,7 +1769,7 @@ function salvarEvento(){
     }
   }
   closeEventoModal();
-  renderCalendario(); renderDashboard();
+  renderCalendario(); renderDashboard(); renderHistorico();
 }
 
 /* =========================================================================
@@ -1781,7 +1837,7 @@ function clienteContaNoMes(c, ano, mes){
   const chaveTeste = ano*12 + mes;
   const chaveInicio = range.inicio.getFullYear()*12 + range.inicio.getMonth();
   const chaveFim = range.fim.getFullYear()*12 + range.fim.getMonth();
-  return chaveTeste >= chaveInicio && chaveTeste < chaveFim;
+  return chaveTeste >= chaveInicio && chaveTeste <= chaveFim;
 }
 const DASH_JANELA_MESES = 7; // mês atual + 6 seguintes
 let dashMesOffset = 0;
@@ -1908,11 +1964,13 @@ function toggleTarefa(id){
   t.done = !t.done;
   if(t.done) registrarAtividade(c, 'Tarefa concluída: ' + t.texto);
   renderProximosPassos();
+  renderHistorico();
 }
 function removerTarefa(id){
   const c = clientes.find(x=>x.id===clienteAberto); if(!c) return;
   c.tarefas = c.tarefas.filter(x=>x.id!==id);
   renderProximosPassos();
+  renderHistorico();
 }
 function taskCard(t){
   const prazoTxt = t.prazo ? new Date(t.prazo+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}) : '';
@@ -2182,7 +2240,7 @@ async function uploadArquivoCliente(inputEl){
   c.arquivos.push({ path, nome: file.name, tamanho: file.size, criadoEm: new Date().toISOString() });
   registrarAtividade(c, 'Arquivo adicionado: ' + file.name + '.');
   $('arquivoUploadStatus').textContent = '';
-  renderArquivos();
+  renderHistorico();
   salvarDadosNaNuvem(false);
 }
 async function baixarArquivoCliente(path){
@@ -2195,7 +2253,7 @@ function removerArquivoCliente(path){
   showConfirmModal('Remover arquivo', 'Isso remove o arquivo definitivamente da nuvem. Continuar?', async () => {
     await sb.storage.from(STORAGE_BUCKET).remove([path]);
     c.arquivos = (c.arquivos||[]).filter(a=>a.path!==path);
-    renderArquivos();
+    renderHistorico();
     salvarDadosNaNuvem(false);
   });
 }
@@ -2721,6 +2779,7 @@ function confirmSave(){
   renderCarteira();
   recalcObjetivosReal();
   renderDashboard();
+  renderHistorico();
   goToSubTab('carteira');
 }
 function toggleScenario(id){
