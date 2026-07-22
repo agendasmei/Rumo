@@ -1778,8 +1778,10 @@ function getContratoRange(c){
 function clienteContaNoMes(c, ano, mes){
   const range = getContratoRange(c);
   if(!range) return c.ativo;
-  const teste = new Date(ano, mes, 15);
-  return teste >= range.inicio && teste < range.fim;
+  const chaveTeste = ano*12 + mes;
+  const chaveInicio = range.inicio.getFullYear()*12 + range.inicio.getMonth();
+  const chaveFim = range.fim.getFullYear()*12 + range.fim.getMonth();
+  return chaveTeste >= chaveInicio && chaveTeste < chaveFim;
 }
 const DASH_JANELA_MESES = 7; // mês atual + 6 seguintes
 let dashMesOffset = 0;
