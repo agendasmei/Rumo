@@ -324,6 +324,12 @@
   .receita-mes-valor{ font-size:11.5px; font-family:var(--font-mono); text-align:right; color:var(--muted); }
   .receita-mes-bar.neg{ background:var(--red); }
   .receita-mes-valor.neg{ color:var(--red); font-weight:700; }
+  .dash-mes-nav-bar{ display:flex; align-items:center; justify-content:center; gap:12px; margin:2px 0 14px; }
+  .dash-mes-btn{ background:#fff; border:1px solid var(--line); color:var(--cream); width:32px; height:32px; border-radius:10px; cursor:pointer; font-size:14px; box-shadow:0 1px 2px rgba(0,0,0,.03); }
+  .dash-mes-btn:hover{ background:var(--blue-dim); color:var(--blue); }
+  .dash-mes-label{ font-size:13px; font-weight:700; color:var(--cream); min-width:140px; text-align:center; }
+  .dash-mes-hoje{ background:var(--blue-dim); color:var(--blue); border:none; font-family:var(--font); font-weight:700; font-size:11.5px; padding:7px 14px; border-radius:980px; cursor:pointer; }
+  .dash-mes-hoje:hover{ background:var(--blue); color:#fff; }
   .modal-section-label{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted-2); font-weight:700; margin-top:18px; padding-top:14px; border-top:1px solid var(--line); }
 
   /* Histórico do cliente */
@@ -550,6 +556,7 @@
         <div id="dashTarefas"></div>
       </div>
     </div>
+    <div class="dash-mes-nav-bar" id="dashMesNavBar"></div>
     <div class="layout">
       <div class="panel">
         <h2 style="font-size:14.5px">Receita por mês (contratos)</h2>
@@ -922,8 +929,7 @@
           <div class="hist-main">
             <div class="panel">
               <h2 style="font-size:14.5px">Evolução financeira</h2>
-              <p class="sub">Atualiza sozinha sempre que você mexe em Investimentos — não precisa fazer nada. Se quiser, também pode forçar um registro manual agora.</p>
-              <div class="pill-row"><button class="pill-btn secondary" onclick="registrarSnapshotFinanceiro()">Registrar snapshot de hoje</button></div>
+              <p class="sub">Atualiza sozinha sempre que você mexe em Investimentos — não precisa fazer nada.</p>
               <div id="histEvolucao"></div>
             </div>
             <div class="panel">
@@ -1775,11 +1781,39 @@ function clienteContaNoMes(c, ano, mes){
   const teste = new Date(ano, mes, 15);
   return teste >= range.inicio && teste < range.fim;
 }
+const DASH_JANELA_MESES = 7; // mês atual + 6 seguintes
+let dashMesOffset = 0;
+function getDashMeses(){
+  const hoje = new Date();
+  const meses = [];
+  for(let i=0; i<DASH_JANELA_MESES; i++) meses.push(new Date(hoje.getFullYear(), hoje.getMonth()+dashMesOffset+i, 1));
+  return meses;
+}
+function dashMesNav(delta){
+  dashMesOffset += delta;
+  renderReceitaMensal();
+}
+function dashMesReset(){
+  dashMesOffset = 0;
+  renderReceitaMensal();
+}
+function renderDashMesNav(){
+  const nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const meses = getDashMeses();
+  const de = nomesMes[meses[0].getMonth()] + '/' + String(meses[0].getFullYear()).slice(2);
+  const ate = nomesMes[meses[meses.length-1].getMonth()] + '/' + String(meses[meses.length-1].getFullYear()).slice(2);
+  $('dashMesNavBar').innerHTML = `
+    <button class="dash-mes-btn" onclick="dashMesNav(-${DASH_JANELA_MESES})" title="Meses anteriores">←</button>
+    <span class="dash-mes-label">${de} – ${ate}</span>
+    <button class="dash-mes-btn" onclick="dashMesNav(${DASH_JANELA_MESES})" title="Próximos meses">→</button>
+    ${dashMesOffset !== 0 ? `<button class="dash-mes-hoje" onclick="dashMesReset()">Mês atual</button>` : ''}
+  `;
+}
 function renderReceitaMensal(){
   const nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const hoje = new Date();
-  const meses = [];
-  for(let i=-2; i<=3; i++) meses.push(new Date(hoje.getFullYear(), hoje.getMonth()+i, 1));
+  const meses = getDashMeses();
+  renderDashMesNav();
   const linhas = meses.map(d => {
     const soma = clientes.filter(c => clienteContaNoMes(c, d.getFullYear(), d.getMonth())).reduce((s,c)=>s+(c.mensalidade||0),0);
     return {
@@ -1800,8 +1834,7 @@ function renderReceitaMensal(){
 function renderLucroMensal(){
   const nomesMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const hoje = new Date();
-  const meses = [];
-  for(let i=-2; i<=3; i++) meses.push(new Date(hoje.getFullYear(), hoje.getMonth()+i, 1));
+  const meses = getDashMeses();
   const linhas = meses.map(d => {
     const doMes = clientes.filter(c => clienteContaNoMes(c, d.getFullYear(), d.getMonth()));
     const receita = doMes.reduce((s,c)=>s+(c.mensalidade||0),0);
