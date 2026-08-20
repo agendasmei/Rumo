@@ -591,6 +591,9 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15 20c.2-2.8 1.8-4.7 3.8-5"/></svg>
         <span class="mini-badge" id="clientesAtivosCount">0</span>
       </button>
+      <button class="tab-btn nav-icon-btn" data-tab="parceiros" title="Consultores Parceiros">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.2 2.4-5.5 5.5-5.5s5.5 2.3 5.5 5.5"/><circle cx="17" cy="7" r="2.4"/><path d="M14.5 14.8c2.6.4 4.5 2.5 4.5 5.2"/></svg>
+      </button>
     </div>
     <div class="sidebar-spacer"></div>
     <div class="user-menu">
@@ -1186,11 +1189,76 @@
       </div>
     </div>
   </div>
+  <!-- ==================== PARCEIROS ==================== -->
+  <div class="tab-content" id="tab-parceiros">
+    <div class="panel">
+      <h2 style="font-size:15px">Compartilhar um cliente com um parceiro</h2>
+      <p class="sub">Ele cria a própria conta depois, entrando em "Sou a consultora → Criar conta" com o email que você indicar aqui. Você decide exatamente o que ele vê ou edita, cliente por cliente.</p>
+      <div class="form-grid">
+        <label>Cliente<select id="parc_selectCliente"></select></label>
+        <label>Email do parceiro<input type="text" id="parc_emailParceiro" placeholder="parceiro@email.com"></label>
+      </div>
+      <div class="row2" style="margin-top:8px">
+        <label>Fluxo Mensal<select id="parc_perm_fluxo"><option value="none">Sem acesso</option><option value="view">Só visualizar</option><option value="edit">Pode editar</option></select></label>
+        <label>Objetivos<select id="parc_perm_objetivos"><option value="none">Sem acesso</option><option value="view">Só visualizar</option><option value="edit">Pode editar</option></select></label>
+      </div>
+      <div class="row2">
+        <label>Investimentos<select id="parc_perm_investimentos"><option value="none">Sem acesso</option><option value="view">Só visualizar</option><option value="edit">Pode editar</option></select></label>
+        <label>Orçamento Familiar<select id="parc_perm_orcamento"><option value="none">Sem acesso</option><option value="view">Só visualizar</option><option value="edit">Pode editar</option></select></label>
+      </div>
+      <div class="row2">
+        <label>Carteira<select id="parc_perm_carteira"><option value="none">Sem acesso</option><option value="view">Só visualizar</option></select></label>
+        <label>Próximos Passos<select id="parc_perm_passos"><option value="none">Sem acesso</option><option value="view">Só visualizar</option><option value="edit">Pode editar</option></select></label>
+      </div>
+      <button class="pill-btn" style="margin-top:18px" onclick="compartilharComParceiro()">Compartilhar com esse parceiro</button>
+      <div class="foot-note" id="parc_shareStatus"></div>
+    </div>
+    <div class="panel">
+      <h2 style="font-size:14.5px">Compartilhamentos ativos</h2>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Parceiro</th><th>Cliente</th><th>Permissões</th><th></th></tr></thead>
+          <tbody id="parc_listaCompartilhamentos"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== MODO PARCEIRO (visão de quem recebeu acesso) ==================== -->
+<div id="parceiroShell" style="display:none">
+  <div style="max-width:900px;margin:0 auto;padding:26px 20px 60px;">
+    <div class="topbar" style="margin-bottom:20px">
+      <div class="topbar-titles">
+        <div class="section-title-big">Painel do Parceiro</div>
+        <div class="section-subtitle" id="parc_topEmail"></div>
+      </div>
+      <button class="back-btn" onclick="fazerLogout()">Sair</button>
+    </div>
+    <div id="parc_listaWrap">
+      <div class="panel">
+        <h2 style="font-size:15px">Clientes compartilhados com você</h2>
+        <p class="sub">Clique num cliente pra ver e (quando liberado) editar as seções que a consultora compartilhou.</p>
+        <div id="parc_listaClientes" class="client-folder-grid"></div>
+      </div>
+    </div>
+    <div id="parc_detalheWrap" style="display:none">
+      <button class="back-btn" onclick="fecharParceria()">← Voltar pra lista</button>
+      <div class="client-header" style="margin:16px 0">
+        <div class="client-header-info"><div class="cname2" id="parc_detalheNome"></div></div>
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <div class="foot-note" id="parc_status" style="margin:0"></div>
+          <button class="pill-btn" onclick="publicarParceiroNoPortal()">Publicar no Portal do Cliente</button>
+        </div>
+      </div>
+      <div id="parc_detalheConteudo"></div>
     </div>
   </div>
 </div>
 <!-- Modal: Cliente (criar/editar - CRM) -->
 <div class="modal-bg" id="crmModalBg">
+
   <div class="modal">
     <h3 id="crmModalTitle">Cliente</h3>
     <div class="form-grid">
@@ -1332,6 +1400,7 @@ const SUPABASE_URL = 'https://dfvyvampiraveeanbygs.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_tD43VHqTAW_YLb0SoXu3Jg_aEIIZP7p';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUserId = null;
+let currentUserEmail = null;
 const $ = id => document.getElementById(id);
 const fmt = v => (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL', maximumFractionDigits:2});
 function maskMoeda(el){
@@ -1403,7 +1472,9 @@ const TAB_META = {
   calendario: { title:'Agenda', sub:'Acompanhe seus compromissos e organize seu dia.',
     icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>' },
   clientes: { title:'Clientes', sub:'O universo completo de cada cliente, tudo num só lugar.',
-    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15 20c.2-2.8 1.8-4.7 3.8-5"/></svg>' }
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15 20c.2-2.8 1.8-4.7 3.8-5"/></svg>' },
+  parceiros: { title:'Consultores Parceiros', sub:'Compartilhe clientes específicos com quem te apoia — com controle total do que cada um vê ou edita.',
+    icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.2 2.4-5.5 5.5-5.5s5.5 2.3 5.5 5.5"/><circle cx="17" cy="7" r="2.4"/><path d="M14.5 14.8c2.6.4 4.5 2.5 4.5 5.2"/></svg>' }
 };
 document.querySelectorAll('.tab-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
@@ -1422,6 +1493,7 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     if(btn.dataset.tab==='gestao') renderKanban();
     if(btn.dataset.tab==='calendario') renderCalendario();
     if(btn.dataset.tab==='clientes' && clienteAberto===null) renderClientesGrid();
+    if(btn.dataset.tab==='parceiros') renderParceirosTab();
   });
 });
 function goToTab(tab){ document.querySelector('.tab-btn[data-tab="'+tab+'"]').click(); }
@@ -2831,6 +2903,435 @@ async function publicarPortalCliente(){
   registrarAtividade(c, 'Portal do cliente atualizado.');
   renderHistorico();
 }
+/* =========================================================================
+   CONSULTORES PARCEIROS
+   ========================================================================= */
+function preencherSelectClientesParceiro(){
+  const sel = $('parc_selectCliente');
+  if(!sel) return;
+  sel.innerHTML = clientes.map(c=>`<option value="${c.id}">${c.nome}</option>`).join('') || '<option value="">Nenhum cliente cadastrado</option>';
+}
+function renderParceirosTab(){
+  preencherSelectClientesParceiro();
+  renderListaCompartilhamentos();
+}
+function permSelectValue(id){ const el = $(id); return el ? el.value : 'none'; }
+async function compartilharComParceiro(){
+  const clienteId = Number($('parc_selectCliente').value);
+  const c = clientes.find(x=>x.id===clienteId);
+  const email = $('parc_emailParceiro').value.trim();
+  if(!c){ showConfirmModal('Escolha um cliente', 'Cadastre ao menos um cliente antes de compartilhar.', null, {hideCancel:true}); return; }
+  if(!email){ showConfirmModal('Email obrigatório', 'Preencha o email do parceiro.', null, {hideCancel:true}); return; }
+  if(!currentUserId){ showConfirmModal('Entre com sua conta', 'Compartilhar com parceiros só funciona logada (não no modo teste).', null, {hideCancel:true}); return; }
+  const permissions = {
+    fluxo: permSelectValue('parc_perm_fluxo'),
+    objetivos: permSelectValue('parc_perm_objetivos'),
+    investimentos: permSelectValue('parc_perm_investimentos'),
+    orcamento: permSelectValue('parc_perm_orcamento'),
+    carteira: permSelectValue('parc_perm_carteira'),
+    passos: permSelectValue('parc_perm_passos')
+  };
+  const snapshot = {};
+  if(permissions.fluxo !== 'none') snapshot.fluxoMeses = c.finance.fluxoMeses;
+  if(permissions.objetivos !== 'none') snapshot.objetivos = c.finance.objetivos;
+  if(permissions.investimentos !== 'none') snapshot.investimentos = c.investimentos || [];
+  if(permissions.orcamento !== 'none') snapshot.orcamento = c.orcamento || criarOrcamentoVazio();
+  if(permissions.carteira !== 'none') snapshot.carteiraView = buildCarteiraSnapshot(c);
+  if(permissions.passos !== 'none') snapshot.tarefas = (c.tarefas||[]).filter(t=>t.assignee==='cliente');
+  $('parc_shareStatus').textContent = 'Compartilhando...';
+  const { error } = await sb.from('partner_clients').upsert({
+    master_user_id: currentUserId,
+    partner_email: email,
+    client_local_id: c.id,
+    client_nome: c.nome,
+    client_email: c.email || '',
+    permissions,
+    snapshot,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'master_user_id,partner_email,client_local_id' });
+  if(error){
+    $('parc_shareStatus').textContent = 'Erro ao compartilhar.';
+    showConfirmModal('Erro ao compartilhar', error.message, null, {hideCancel:true});
+    return;
+  }
+  $('parc_shareStatus').textContent = 'Compartilhado! Peça pro parceiro criar a conta em "Sou a consultora → Criar conta" com esse mesmo email.';
+  $('parc_emailParceiro').value = '';
+  renderListaCompartilhamentos();
+}
+async function renderListaCompartilhamentos(){
+  if(!currentUserId) return;
+  const { data, error } = await sb.from('partner_clients').select('*').eq('master_user_id', currentUserId).order('updated_at', {ascending:false});
+  const tbody = $('parc_listaCompartilhamentos');
+  if(!tbody) return;
+  if(error || !data || !data.length){
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-mini" style="padding:16px 0;text-align:center">Nenhum compartilhamento ainda.</div></td></tr>`;
+    return;
+  }
+  const labelPerm = { none:'—', view:'ver', edit:'editar' };
+  const nomesSecao = { fluxo:'Fluxo', objetivos:'Objetivos', investimentos:'Investimentos', orcamento:'Orçamento', carteira:'Carteira', passos:'Passos' };
+  tbody.innerHTML = data.map(p => {
+    const perm = p.permissions || {};
+    const resumo = Object.entries(perm).filter(([,v])=>v && v!=='none').map(([k,v])=>`${nomesSecao[k]||k} (${labelPerm[v]||v})`).join(', ') || 'nenhuma seção liberada';
+    return `<tr>
+      <td>${p.partner_email}</td>
+      <td>${p.client_nome}</td>
+      <td style="font-size:11.5px;color:var(--muted)">${resumo}</td>
+      <td class="crm-acoes"><button class="mini-del" onclick="revogarParceiro('${p.id}')" title="Revogar"><svg class="icon-inline" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/></svg></button></td>
+    </tr>`;
+  }).join('');
+}
+function revogarParceiro(id){
+  showConfirmModal('Revogar acesso', 'O parceiro perde o acesso a esse cliente imediatamente. Continuar?', async () => {
+    await sb.from('partner_clients').delete().eq('id', id);
+    renderListaCompartilhamentos();
+  });
+}
+/* ---------- Modo Parceiro (visão de quem recebeu acesso a clientes específicos) ---------- */
+let modoParceiro = false;
+let parceriasDoUsuario = [];
+let parceriaAberta = null;
+function curParceria(){
+  return parceriasDoUsuario.find(p => p.id === parceriaAberta);
+}
+function ativarModoParceiro(parcerias){
+  modoParceiro = true;
+  parceriasDoUsuario = parcerias;
+  $('appShell').style.display = 'none';
+  $('parceiroShell').style.display = 'block';
+  $('parc_topEmail').textContent = currentUserEmail || '';
+  renderParceiroListaClientes();
+}
+function renderParceiroListaClientes(){
+  const wrap = $('parc_listaClientes');
+  wrap.innerHTML = parceriasDoUsuario.length ? parceriasDoUsuario.map(p => `
+    <div class="client-tile" onclick="abrirParceria('${p.id}')">
+      <div class="client-avatar">${(p.client_nome||'?').trim().slice(0,1).toUpperCase()}</div>
+      <div class="cname">${p.client_nome}</div>
+    </div>`).join('') : '<div class="empty-state">Nenhum cliente compartilhado com você ainda.</div>';
+}
+function abrirParceria(id){
+  parceriaAberta = id;
+  $('parc_listaWrap').style.display = 'none';
+  $('parc_detalheWrap').style.display = 'block';
+  renderParceriaDetalhe();
+}
+function fecharParceria(){
+  parceriaAberta = null;
+  $('parc_listaWrap').style.display = 'block';
+  $('parc_detalheWrap').style.display = 'none';
+}
+function renderParceriaDetalhe(){
+  const p = curParceria(); if(!p) return;
+  $('parc_detalheNome').textContent = p.client_nome;
+  if(!p.snapshot) p.snapshot = {};
+  const perm = p.permissions || {};
+  let html = '';
+  if(perm.fluxo && perm.fluxo!=='none') html += renderParcFluxo(p, perm.fluxo==='edit');
+  if(perm.objetivos && perm.objetivos!=='none') html += renderParcObjetivos(p, perm.objetivos==='edit');
+  if(perm.investimentos && perm.investimentos!=='none') html += renderParcInvestimentos(p, perm.investimentos==='edit');
+  if(perm.orcamento && perm.orcamento!=='none') html += renderParcOrcamento(p, perm.orcamento==='edit');
+  if(perm.carteira && perm.carteira!=='none') html += renderParcCarteira(p);
+  if(perm.passos && perm.passos!=='none') html += renderParcPassos(p, perm.passos==='edit');
+  $('parc_detalheConteudo').innerHTML = html || '<div class="panel"><div class="empty-mini">Nenhuma seção liberada pra esse cliente ainda.</div></div>';
+}
+function renderParcFluxo(p, editavel){
+  const meses = p.snapshot.fluxoMeses || [];
+  const linhas = meses.map((m, idx) => `
+    <tr>
+      <td>Mês ${idx+1}</td>
+      <td>${editavel ? `<input type="text" inputmode="numeric" value="${m.ganha}" oninput="maskMoeda(this);parcSyncFluxo(${idx},'ganha',this.value)">` : fmt(parseMoeda(m.ganha))}</td>
+      <td>${editavel ? `<input type="text" inputmode="numeric" value="${m.gasta}" oninput="maskMoeda(this);parcSyncFluxo(${idx},'gasta',this.value)">` : fmt(parseMoeda(m.gasta))}</td>
+      <td>${editavel ? `<input type="text" inputmode="numeric" value="${m.fixo||'0,00'}" oninput="maskMoeda(this);parcSyncFluxo(${idx},'fixo',this.value)">` : fmt(parseMoeda(m.fixo))}</td>
+      ${editavel ? `<td><button class="mini-del" onclick="parcRemoverFluxo(${idx})">×</button></td>` : ''}
+    </tr>`).join('');
+  return `<div class="panel"><h2 style="font-size:14.5px">Fluxo Mensal</h2>
+    <div class="tbl-wrap"><table><thead><tr><th>Mês</th><th>Ganha</th><th>Gasta</th><th>Investe fixo</th>${editavel?'<th></th>':''}</tr></thead><tbody>${linhas || '<tr><td colspan="5"><div class="empty-mini">Nenhum mês lançado.</div></td></tr>'}</tbody></table></div>
+    ${editavel ? `<button class="pill-btn secondary" style="margin-top:12px" onclick="parcAdicionarMesFluxo()">+ Adicionar mês</button>` : ''}
+  </div>`;
+}
+function parcSyncFluxo(idx, campo, valor){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.fluxoMeses[idx][campo] = valor;
+  salvarRascunhoParceiro();
+}
+function parcAdicionarMesFluxo(){
+  const p = curParceria(); if(!p) return;
+  if(!p.snapshot.fluxoMeses) p.snapshot.fluxoMeses = [];
+  p.snapshot.fluxoMeses.push({ ganha:'0,00', gasta:'0,00', fixo:'0,00', planeja:'0,00' });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverFluxo(idx){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.fluxoMeses.splice(idx,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function renderParcObjetivos(p, editavel){
+  const objs = p.snapshot.objetivos || [];
+  const linhas = objs.map((o, idx) => {
+    const meta = parseMoeda(o.meta);
+    const guardado = o.jaGuardado || 0;
+    const mesesRestantes = diffMeses(o.dataAlvo);
+    const faltante = Math.max(meta - guardado, 0);
+    const necessario = mesesRestantes > 0 ? faltante/mesesRestantes : faltante;
+    return `<div style="padding:12px 0; border-bottom:1px solid var(--line)">
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline">
+        ${editavel ? `<input type="text" value="${o.nome}" style="font-weight:700; max-width:220px" oninput="parcSyncObjetivo(${idx},'nome',this.value)">` : `<b>${o.nome}</b>`}
+        ${editavel ? `<button class="mini-del" onclick="parcRemoverObjetivo(${idx})">×</button>` : ''}
+      </div>
+      <div class="row2" style="margin-top:8px">
+        <label style="margin:0">Meta${editavel ? `<input type="text" inputmode="numeric" value="${o.meta}" oninput="maskMoeda(this);parcSyncObjetivo(${idx},'meta',this.value)">` : `<div>${fmt(meta)}</div>`}</label>
+        <label style="margin:0">Data alvo${editavel ? `<input type="date" value="${o.dataAlvo||''}" onchange="parcSyncObjetivo(${idx},'dataAlvo',this.value)">` : `<div>${o.dataAlvo ? new Date(o.dataAlvo+'T00:00:00').toLocaleDateString('pt-BR') : '—'}</div>`}</label>
+      </div>
+      <label style="margin-top:8px">Já guardado${editavel ? `<input type="text" inputmode="numeric" value="${formatMoeda(guardado)}" oninput="maskMoeda(this);parcSyncObjetivo(${idx},'jaGuardado',parseMoeda(this.value))">` : `<div>${fmt(guardado)}</div>`}</label>
+      <div class="foot-note" style="margin-top:8px">Faltam ${fmt(faltante)}${mesesRestantes>0 ? (' · ' + fmt(necessario) + '/mês pra chegar no prazo') : ''}</div>
+    </div>`;
+  }).join('');
+  return `<div class="panel"><h2 style="font-size:14.5px">Objetivos</h2>
+    ${linhas || '<div class="empty-mini">Nenhum objetivo ainda.</div>'}
+    ${editavel ? `<button class="pill-btn secondary" style="margin-top:12px" onclick="parcAdicionarObjetivo()">+ Adicionar objetivo</button>` : ''}
+  </div>`;
+}
+function parcSyncObjetivo(idx, campo, valor){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.objetivos[idx][campo] = valor;
+  salvarRascunhoParceiro();
+}
+function parcAdicionarObjetivo(){
+  const p = curParceria(); if(!p) return;
+  if(!p.snapshot.objetivos) p.snapshot.objetivos = [];
+  p.snapshot.objetivos.push({ nome:'Objetivo', meta:'0,00', dataAlvo:'', jaGuardado:0 });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverObjetivo(idx){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.objetivos.splice(idx,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function renderParcInvestimentos(p, editavel){
+  const itens = p.snapshot.investimentos || [];
+  const total = itens.reduce((s,i)=>s+parseMoeda(i.valor),0);
+  const linhas = itens.map((i, idx) => `
+    <tr>
+      <td>${editavel ? `<input type="text" value="${i.nome}" oninput="parcSyncInvestimento(${idx},'nome',this.value)">` : i.nome}</td>
+      <td>${editavel ? `<select onchange="parcSyncInvestimento(${idx},'tipo',this.value)">${TIPOS_INVESTIMENTO.map(t=>`<option ${i.tipo===t?'selected':''}>${t}</option>`).join('')}</select>` : i.tipo}</td>
+      <td>${editavel ? `<input type="text" inputmode="numeric" value="${i.valor}" oninput="maskMoeda(this);parcSyncInvestimento(${idx},'valor',this.value)">` : fmt(parseMoeda(i.valor))}</td>
+      ${editavel ? `<td><button class="mini-del" onclick="parcRemoverInvestimento(${idx})">×</button></td>` : ''}
+    </tr>`).join('');
+  return `<div class="panel"><h2 style="font-size:14.5px">Investimentos</h2>
+    <div class="tbl-wrap"><table><thead><tr><th>Ativo</th><th>Tipo</th><th>Valor</th>${editavel?'<th></th>':''}</tr></thead><tbody>${linhas || '<tr><td colspan="4"><div class="empty-mini">Nenhum ativo.</div></td></tr>'}</tbody></table></div>
+    <div class="cards" style="margin-top:14px"><div class="card gold"><div class="lbl">Total</div><div class="val">${fmt(total)}</div></div></div>
+    ${editavel ? `<button class="pill-btn secondary" style="margin-top:12px" onclick="parcAdicionarInvestimento()">+ Adicionar ativo</button>` : ''}
+  </div>`;
+}
+function parcSyncInvestimento(idx, campo, valor){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.investimentos[idx][campo] = valor;
+  salvarRascunhoParceiro();
+}
+function parcAdicionarInvestimento(){
+  const p = curParceria(); if(!p) return;
+  if(!p.snapshot.investimentos) p.snapshot.investimentos = [];
+  p.snapshot.investimentos.push({ nome:'', tipo: TIPOS_INVESTIMENTO[0], valor:'0,00' });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverInvestimento(idx){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.investimentos.splice(idx,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function renderParcOrcamento(p, editavel){
+  if(!p.snapshot.orcamento) p.snapshot.orcamento = { categorias: [], observacoes: [] };
+  const orc = p.snapshot.orcamento;
+  const trashIcon = '<svg class="icon-inline" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13"/></svg>';
+  const cats = (orc.categorias||[]).map((cat, ci) => {
+    const gasto = (cat.gastos||[]).reduce((s,g)=>s+g.valor,0);
+    const pct = cat.teto>0 ? (gasto/cat.teto*100) : 0;
+    const over = gasto > cat.teto && cat.teto>0;
+    const barColor = over ? 'var(--red)' : (pct>=80 ? 'var(--gold)' : 'var(--blue)');
+    const gastosHtml = (cat.gastos||[]).map((g, gi) => `
+      <div class="orc-gasto-item"><span>${g.desc}<span class="orc-gasto-date">${g.data}</span></span>
+      <span style="display:flex;align-items:center"><span class="orc-gasto-val">${fmt(g.valor)}</span>${editavel?`<button class="mini-del" onclick="parcRemoverGastoOrc(${ci},${gi})">${trashIcon}</button>`:''}</span></div>`).join('') || '<div class="empty-mini">Nenhum gasto.</div>';
+    return `<div class="orc-cat-card ${over?'over':''}">
+      <div class="orc-cat-header ${over?'over-bg':''}">
+        <span class="orc-cat-name ${over?'over':''}">${cat.nome}</span>
+        <span class="orc-cat-nums"><span class="orc-cat-gasto ${over?'over':'normal'}">${fmt(gasto)}</span> / <span class="orc-cat-teto">${fmt(cat.teto)}</span></span>
+        ${editavel ? `<button class="mini-del" onclick="parcRemoverCategoriaOrc(${ci})">${trashIcon}</button>` : ''}
+      </div>
+      <div class="orc-bar-track"><div class="orc-bar-fill" style="width:${Math.min(pct,100)}%;background:${barColor}"></div></div>
+      <div class="orc-cat-body">${gastosHtml}
+        ${editavel ? `<div class="add-task-row" style="grid-template-columns:1fr 110px 150px auto; margin-top:8px; margin-bottom:0;">
+          <input type="text" id="parc_gd_${ci}" placeholder="Descrição">
+          <input type="text" id="parc_gv_${ci}" placeholder="Valor R$" inputmode="numeric" oninput="maskMoeda(this)">
+          <input type="date" id="parc_gdt_${ci}" value="${new Date().toISOString().slice(0,10)}">
+          <button class="add-task-btn" onclick="parcAdicionarGastoOrc(${ci})">+</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  const obs = (orc.observacoes||[]).map((o, oi) => `<div class="orc-obs-item"><span>• ${o.texto}</span>${editavel?`<button class="mini-del" onclick="parcRemoverObsOrc(${oi})">${trashIcon}</button>`:''}</div>`).join('') || '<div class="empty-mini">Nenhuma observação.</div>';
+  return `<div class="panel"><h2 style="font-size:14.5px">Orçamento Familiar</h2>
+    ${editavel ? `<div class="add-task-row" style="grid-template-columns:1fr 140px auto">
+      <input type="text" id="parc_novaCatNome" placeholder="Nome da categoria">
+      <input type="text" id="parc_novaCatTeto" placeholder="Teto R$" inputmode="numeric" oninput="maskMoeda(this)">
+      <button class="pill-btn blue" style="margin:0" onclick="parcAdicionarCategoriaOrc()">+ Categoria</button>
+    </div>` : ''}
+    <div style="margin-top:10px">${cats || '<div class="empty-mini">Nenhuma categoria.</div>'}</div>
+    <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--line)"><div class="sub" style="margin-bottom:8px">Observações</div>${obs}
+      ${editavel ? `<div class="add-task-row" style="grid-template-columns:1fr auto; margin-top:8px">
+        <input type="text" id="parc_novaObs" placeholder="Nova observação">
+        <button class="add-task-btn" onclick="parcAdicionarObsOrc()">+</button>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+function parcAdicionarCategoriaOrc(){
+  const p = curParceria(); if(!p) return;
+  const nome = $('parc_novaCatNome').value.trim();
+  const teto = parseMoeda($('parc_novaCatTeto').value);
+  if(!nome) return;
+  p.snapshot.orcamento.categorias.push({ nome, teto, gastos: [] });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverCategoriaOrc(ci){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.orcamento.categorias.splice(ci,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcAdicionarGastoOrc(ci){
+  const p = curParceria(); if(!p) return;
+  const desc = $('parc_gd_'+ci).value.trim();
+  const valor = parseMoeda($('parc_gv_'+ci).value);
+  const dataEl = $('parc_gdt_'+ci);
+  if(!valor) return;
+  const dataStr = dataEl.value ? new Date(dataEl.value+'T00:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  p.snapshot.orcamento.categorias[ci].gastos.push({ desc: desc||'Gasto', valor, data: dataStr });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverGastoOrc(ci, gi){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.orcamento.categorias[ci].gastos.splice(gi,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcAdicionarObsOrc(){
+  const p = curParceria(); if(!p) return;
+  const el = $('parc_novaObs');
+  const texto = el.value.trim();
+  if(!texto) return;
+  p.snapshot.orcamento.observacoes.push({ texto });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverObsOrc(oi){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.orcamento.observacoes.splice(oi,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function renderParcCarteira(p){
+  const cenarios = p.snapshot.carteiraView || [];
+  if(!cenarios.length) return `<div class="panel"><h2 style="font-size:14.5px">Carteira</h2><div class="empty-mini">Nenhum cenário compartilhado.</div></div>`;
+  const cards = cenarios.map(s => `
+    <div class="card blue"><div class="lbl">${s.nome}</div><div class="val">${fmt(s.patrimonioFinal)}</div>
+    <div class="sub" style="font-size:11px;margin-top:4px">aportado: ${fmt(s.aportadoFinal)} · rendimento: ${s.rendimento>=0?'+':''}${fmt(s.rendimento)}</div></div>`).join('');
+  return `<div class="panel"><h2 style="font-size:14.5px">Carteira</h2><p class="sub">Somente visualização — atualizado por último quando a consultora compartilhou.</p><div class="cards">${cards}</div></div>`;
+}
+function renderParcPassos(p, editavel){
+  const tarefas = p.snapshot.tarefas || [];
+  const linhas = tarefas.map((t, idx) => `
+    <div class="task-card ${t.done?'is-done':''}">
+      <button class="task-check ${t.done?'checked':''}" onclick="parcToggleTarefa(${idx})">${t.done?'✓':''}</button>
+      <div class="task-body">
+        <div class="task-text">${t.texto}</div>
+        ${t.prazo ? `<div class="task-meta"><span class="task-date">${new Date(t.prazo+'T00:00:00').toLocaleDateString('pt-BR')}</span></div>` : ''}
+      </div>
+      ${editavel ? `<button class="task-del" onclick="parcRemoverTarefa(${idx})">×</button>` : ''}
+    </div>`).join('');
+  return `<div class="panel"><h2 style="font-size:14.5px">Próximos passos</h2>
+    ${editavel ? `<div class="add-task-row" style="grid-template-columns:1fr auto auto">
+      <input type="text" id="parc_novaTarefaTexto" placeholder="Nova tarefa...">
+      <input type="date" id="parc_novaTarefaPrazo">
+      <button class="add-task-btn" onclick="parcAdicionarTarefa()">+</button>
+    </div>` : ''}
+    <div class="task-list" style="margin-top:10px">${linhas || '<div class="empty-col-note">Nenhuma tarefa.</div>'}</div>
+  </div>`;
+}
+function parcToggleTarefa(idx){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.tarefas[idx].done = !p.snapshot.tarefas[idx].done;
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcRemoverTarefa(idx){
+  const p = curParceria(); if(!p) return;
+  p.snapshot.tarefas.splice(idx,1);
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+function parcAdicionarTarefa(){
+  const p = curParceria(); if(!p) return;
+  const texto = $('parc_novaTarefaTexto').value.trim();
+  if(!texto) return;
+  if(!p.snapshot.tarefas) p.snapshot.tarefas = [];
+  p.snapshot.tarefas.push({ texto, prazo: $('parc_novaTarefaPrazo').value||null, done:false });
+  salvarRascunhoParceiro();
+  renderParceriaDetalhe();
+}
+let parcSalvandoAgora = false;
+async function salvarRascunhoParceiro(){
+  const p = curParceria(); if(!p || parcSalvandoAgora) return;
+  parcSalvandoAgora = true;
+  const { error } = await sb.from('partner_clients').update({ snapshot: p.snapshot, updated_at: new Date().toISOString() }).eq('id', p.id);
+  parcSalvandoAgora = false;
+  if($('parc_status')) $('parc_status').textContent = error ? 'Erro ao salvar.' : ('Salvo às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+}
+async function publicarParceiroNoPortal(){
+  const p = curParceria(); if(!p) return;
+  const perm = p.permissions || {};
+  const snap = p.snapshot || {};
+  const clientViewSnapshot = { nome: p.client_nome };
+  if(perm.fluxo && perm.fluxo!=='none') clientViewSnapshot.fluxo = snap.fluxoMeses || [];
+  if(perm.objetivos && perm.objetivos!=='none'){
+    clientViewSnapshot.objetivos = (snap.objetivos||[]).map(o => {
+      const meta = parseMoeda(o.meta);
+      const mesesRestantes = diffMeses(o.dataAlvo);
+      const guardado = o.jaGuardado || 0;
+      const faltante = Math.max(meta - guardado, 0);
+      const necessario = mesesRestantes > 0 ? faltante/mesesRestantes : faltante;
+      let statusLabel, statusType;
+      if(guardado >= meta && meta > 0){ statusLabel='Meta atingida'; statusType='ok'; }
+      else if(mesesRestantes <= 0){ statusLabel='Prazo vencido'; statusType='warn'; }
+      else { statusLabel = 'Faltam ' + formatMoeda(faltante); statusType='warn'; }
+      return { nome:o.nome, meta, dataAlvo:o.dataAlvo, mesesRestantes, alocado:guardado, necessario, statusLabel, statusType };
+    });
+  }
+  if(perm.investimentos && perm.investimentos!=='none'){
+    const itens = (snap.investimentos||[]).map(i=>({nome:i.nome||'(sem nome)', tipo:i.tipo, valor:parseMoeda(i.valor)}));
+    clientViewSnapshot.investimentos = { itens, total: itens.reduce((s,i)=>s+i.valor,0) };
+  }
+  if(perm.orcamento && perm.orcamento!=='none') clientViewSnapshot.orcamento = snap.orcamento || {categorias:[],observacoes:[]};
+  if(perm.carteira && perm.carteira!=='none') clientViewSnapshot.carteira = snap.carteiraView || [];
+  if(perm.passos && perm.passos!=='none') clientViewSnapshot.passos = (snap.tarefas||[]).map(t=>({texto:t.texto,prazo:t.prazo||null,done:!!t.done}));
+  $('parc_status').textContent = 'Publicando...';
+  const { error } = await sb.from('client_views').upsert({
+    consultant_user_id: p.master_user_id,
+    client_local_id: p.client_local_id,
+    client_email: p.client_email || '',
+    visible_sections: perm,
+    snapshot: clientViewSnapshot,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'consultant_user_id,client_local_id' });
+  $('parc_status').textContent = error ? 'Erro ao publicar.' : ('Publicado às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+}
 /* ---------- Fluxo Mensal ---------- */
 function computeFluxoRow(m){
   const ganha = parseMoeda(m.ganha), gasta = parseMoeda(m.gasta), fixo = parseMoeda(m.fixo), planeja = parseMoeda(m.planeja);
@@ -3557,9 +4058,15 @@ document.addEventListener('click', (ev)=>{
 });
 async function onAuthReady(user){
   currentUserId = user.id;
+  currentUserEmail = user.email;
   $('userEmailLabel').textContent = user.email;
   $('userAvatarBtn').textContent = (user.email||'?').slice(0,2).toUpperCase();
   $('authScreen').style.display = 'none';
+  const { data: parcerias } = await sb.from('partner_clients').select('*').ilike('partner_email', user.email);
+  if(parcerias && parcerias.length > 0){
+    ativarModoParceiro(parcerias);
+    return;
+  }
   $('appShell').style.display = 'flex';
   $('topbarTitle').textContent = TAB_META.dashboard.title;
   $('topbarSubtitle').textContent = TAB_META.dashboard.sub;
